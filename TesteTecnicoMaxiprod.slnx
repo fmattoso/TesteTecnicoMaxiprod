@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="testetecnicomaxiprod.client/testetecnicomaxiprod.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="TesteTecnicoMaxiprod.Server/TesteTecnicoMaxiprod.WebApi.csproj" />
+</Solution>
