@@ -57,5 +57,78 @@ namespace TesteTecnicoMaxiprod.WebApi.Controllers
 
             return Ok(categorias);
         }
+
+        /// <summary>
+        /// Insere uma nova categoria
+        /// </summary>
+        /// <param name="criarCategoriaDto">Dados da nova categoria</param>
+        /// <returns>Nova categoria</returns>
+        [HttpPost]
+        public async Task<ActionResult<CategoriaDTO>> PostCategoria(CriarCategoriaDTO criarCategoriaDto)
+        {
+            var categoria = new Categoria
+            {
+                Descricao = criarCategoriaDto.Descricao,
+                Finalidade = criarCategoriaDto.Finalidade
+            };
+
+            _context.Categorias.Add(categoria);
+            await _context.SaveChangesAsync();
+
+            var categoriaDto = new CategoriaDTO
+            {
+                Id = categoria.Id,
+                Descricao = categoria.Descricao,
+                Finalidade = categoria.Finalidade
+            };
+
+            return CreatedAtAction(nameof(GetCategorias), null, categoriaDto);
+        }
+
+        /// <summary>
+        /// Retorna o resumo financeiro por categoria
+        /// Inclui totais de receitas, despesas e saldo de cada categoria
+        /// </summary>
+        /// <returns>Resumo Financeiro por categoria</returns>
+        [HttpGet("resumo")]
+        public async Task<ActionResult<ResumoCategoriaGeralDTO>> GetResumoPorCategoria()
+        {
+            var categorias = await _context.Categorias
+                .Include(c => c.Transacoes)
+                .ToListAsync();
+
+            var resumoPorCategoria = new List<ResumoCategoriaDTO>();
+
+            foreach (var categoria in categorias)
+            {
+                var totalReceitas = categoria.Transacoes
+                    .Where(t => t.Tipo == TipoTransacao.Receita)
+                    .Sum(t => t.Valor);
+
+                var totalDespesas = categoria.Transacoes
+                    .Where(t => t.Tipo == TipoTransacao.Despesa)
+                    .Sum(t => t.Valor);
+
+                resumoPorCategoria.Add(new ResumoCategoriaDTO
+                {
+                    CategoriaId = categoria.Id,
+                    Descricao = categoria.Descricao,
+                    TotalReceitas = totalReceitas,
+                    TotalDespesas = totalDespesas
+                });
+            }
+
+            var totalGeralReceitas = resumoPorCategoria.Sum(r => r.TotalReceitas);
+            var totalGeralDespesas = resumoPorCategoria.Sum(r => r.TotalDespesas);
+
+            var resumoGeral = new ResumoCategoriaGeralDTO
+            {
+                ResumoCategoria = resumoPorCategoria,
+                TotalGeralReceitas = totalGeralReceitas,
+                TotalGeralDespesas = totalGeralDespesas
+            };
+
+            return Ok(resumoGeral);
+        }
     }
 }
