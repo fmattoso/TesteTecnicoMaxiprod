@@ -81,7 +81,16 @@ namespace TesteTecnicoMaxiprod.WebApi.Data
                 .OnDelete(DeleteBehavior.Restrict);
             });
 
-
+            // Inserts iniciais para Categorias
+            modelBuilder.Entity<Categoria>().HasData(
+                new Categoria { Id = 1, Descricao = "Salário", Finalidade = FinalidadeCategoria.Receita },
+                new Categoria { Id = 2, Descricao = "Investimentos", Finalidade = FinalidadeCategoria.Receita },
+                new Categoria { Id = 3, Descricao = "Alimentação", Finalidade = FinalidadeCategoria.Despesa },
+                new Categoria { Id = 4, Descricao = "Moradia", Finalidade = FinalidadeCategoria.Despesa },
+                new Categoria { Id = 5, Descricao = "Transporte", Finalidade = FinalidadeCategoria.Despesa },
+                new Categoria { Id = 6, Descricao = "Lazer", Finalidade = FinalidadeCategoria.Despesa },
+                new Categoria { Id = 7, Descricao = "Transferência", Finalidade = FinalidadeCategoria.Ambas }
+                );
         }
     }
 }
